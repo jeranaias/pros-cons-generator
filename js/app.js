@@ -55,6 +55,12 @@
   // DOM Elements
   // ===========================================
   const elements = {
+    // Marine Info
+    marineName: document.getElementById('marineName'),
+    marineRank: document.getElementById('marineRank'),
+    marineUnit: document.getElementById('marineUnit'),
+    markingPeriod: document.getElementById('markingPeriod'),
+
     // Dropdowns
     performanceLevel: document.getElementById('performanceLevel'),
     mosType: document.getElementById('mosType'),
@@ -75,6 +81,7 @@
     clearPro: document.getElementById('clearPro'),
     clearCon: document.getElementById('clearCon'),
     copyToClipboard: document.getElementById('copyToClipboard'),
+    exportPDF: document.getElementById('exportPDF'),
     saveDraft: document.getElementById('saveDraft'),
     loadDraft: document.getElementById('loadDraft'),
     resetForm: document.getElementById('resetForm'),
@@ -87,6 +94,13 @@
     // Alignment warning
     alignmentWarning: document.getElementById('alignmentWarning'),
     alignmentMessage: document.getElementById('alignmentMessage'),
+
+    // Preview
+    previewPanel: document.querySelector('.preview-panel'),
+    previewDocument: document.getElementById('previewDocument'),
+    togglePreview: document.getElementById('togglePreview'),
+    togglePreviewFormat: document.getElementById('togglePreviewFormat'),
+    previewFormatLabel: document.getElementById('previewFormatLabel'),
 
     // Toast
     toast: document.getElementById('toast'),
@@ -113,11 +127,21 @@
     draftList: document.getElementById('draftList'),
     noDrafts: document.getElementById('noDrafts'),
     closeLoadModal: document.getElementById('closeLoadModal'),
-    cancelLoad: document.getElementById('cancelLoad')
+    cancelLoad: document.getElementById('cancelLoad'),
+
+    // Export PDF Modal
+    exportPdfModal: document.getElementById('exportPdfModal'),
+    closeExportModal: document.getElementById('closeExportModal'),
+    cancelExport: document.getElementById('cancelExport'),
+    exportWorksheet: document.getElementById('exportWorksheet'),
+    exportCard: document.getElementById('exportCard')
   };
 
   // Current phrase bank type being edited
   let currentPhraseType = 'proficiency';
+
+  // Preview format: 'worksheet' or 'card'
+  let previewFormat = 'worksheet';
 
   // ===========================================
   // Initialization
@@ -138,6 +162,9 @@
     // Initialize character counts
     updateCharCount('proficiency');
     updateCharCount('conduct');
+
+    // Initialize preview
+    updatePreview();
   }
 
   // ===========================================
@@ -169,41 +196,60 @@
     // Theme toggle
     elements.themeToggle.addEventListener('click', () => ThemeManager.toggle());
 
+    // Marine info changes
+    [elements.marineName, elements.marineRank, elements.marineUnit, elements.markingPeriod].forEach(el => {
+      if (el) el.addEventListener('input', updatePreview);
+    });
+
     // Performance level change
     elements.performanceLevel.addEventListener('change', () => {
       updateQuickPhrases();
       syncMarksToLevel();
+      updatePreview();
     });
 
     // MOS type change
-    elements.mosType.addEventListener('change', updateQuickPhrases);
+    elements.mosType.addEventListener('change', () => {
+      updateQuickPhrases();
+      updatePreview();
+    });
 
     // Statement input handlers
     elements.proficiencyStatement.addEventListener('input', () => {
       updateCharCount('proficiency');
       checkAlignment();
+      updatePreview();
     });
 
     elements.conductStatement.addEventListener('input', () => {
       updateCharCount('conduct');
       checkAlignment();
+      updatePreview();
     });
 
     // Mark change handlers
-    elements.proMark.addEventListener('change', checkAlignment);
-    elements.conMark.addEventListener('change', checkAlignment);
+    elements.proMark.addEventListener('change', () => {
+      checkAlignment();
+      updatePreview();
+    });
+    elements.conMark.addEventListener('change', () => {
+      checkAlignment();
+      updatePreview();
+    });
 
     // Clear buttons
     elements.clearPro.addEventListener('click', () => {
       elements.proficiencyStatement.value = '';
       updateCharCount('proficiency');
       checkAlignment();
+      updatePreview();
     });
 
     elements.clearCon.addEventListener('click', () => {
       elements.conductStatement.value = '';
       updateCharCount('conduct');
       checkAlignment();
+      updatePreview();
     });
 
     // Phrase bank buttons
@@ -227,11 +273,26 @@
     elements.closeLoadModal.addEventListener('click', closeLoadDraftModal);
     elements.cancelLoad.addEventListener('click', closeLoadDraftModal);
 
+    // Export PDF modal
+    elements.exportPDF.addEventListener('click', openExportPdfModal);
+    elements.closeExportModal.addEventListener('click', closeExportPdfModal);
+    elements.cancelExport.addEventListener('click', closeExportPdfModal);
+    elements.exportWorksheet.addEventListener('click', () => generatePDF('worksheet'));
+    elements.exportCard.addEventListener('click', () => generatePDF('card'));
+
     // Copy to clipboard
     elements.copyToClipboard.addEventListener('click', copyToClipboard);
 
     // Reset form
     elements.resetForm.addEventListener('click', resetForm);
+
+    // Preview controls
+    if (elements.togglePreview) {
+      elements.togglePreview.addEventListener('click', togglePreviewPanel);
+    }
+    if (elements.togglePreviewFormat) {
+      elements.togglePreviewFormat.addEventListener('click', togglePreviewFormat);
+    }
 
     // Template buttons
     document.querySelectorAll('[data-template]').forEach(btn => {
@@ -239,12 +300,14 @@
     });
 
     // Close modals on overlay click
-    [elements.phraseBankModal, elements.saveDraftModal, elements.loadDraftModal].forEach(modal => {
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-          modal.classList.remove('modal-overlay--active');
-        }
-      });
+    [elements.phraseBankModal, elements.saveDraftModal, elements.loadDraftModal, elements.exportPdfModal].forEach(modal => {
+      if (modal) {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) {
+            modal.classList.remove('modal-overlay--active');
+          }
+        });
+      }
     });
 
     // Keyboard shortcuts
@@ -254,8 +317,400 @@
         closePhraseBank();
         closeSaveDraftModal();
         closeLoadDraftModal();
+        closeExportPdfModal();
       }
     });
+  }
+
+  // ===========================================
+  // Preview Functions
+  // ===========================================
+  function updatePreview() {
+    if (!elements.previewDocument) return;
+
+    const data = getFormData();
+    const hasContent = data.proStatement || data.conStatement || data.marineName;
+
+    if (!hasContent) {
+      elements.previewDocument.innerHTML = `
+        <div class="preview-placeholder">
+          <p>Start entering information to see live preview</p>
+        </div>
+      `;
+      return;
+    }
+
+    if (previewFormat === 'worksheet') {
+      elements.previewDocument.classList.remove('card-format');
+      elements.previewDocument.innerHTML = generateWorksheetHTML(data);
+    } else {
+      elements.previewDocument.classList.add('card-format');
+      elements.previewDocument.innerHTML = generateCardHTML(data);
+    }
+  }
+
+  function generateWorksheetHTML(data) {
+    const today = new Date().toLocaleDateString('en-US', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    }).toUpperCase();
+
+    return `
+      <div class="doc-header">
+        <div class="doc-title">Proficiency and Conduct Marks</div>
+        <div class="doc-subtitle">Counseling Worksheet</div>
+      </div>
+
+      ${(data.marineName || data.marineRank || data.marineUnit || data.markingPeriod) ? `
+      <div class="marine-info">
+        ${data.marineName ? `<div class="marine-info-row"><span class="marine-info-label">Name:</span> ${escapeHtml(data.marineName)}</div>` : ''}
+        ${data.marineRank ? `<div class="marine-info-row"><span class="marine-info-label">Rank:</span> ${escapeHtml(data.marineRank)}</div>` : ''}
+        ${data.marineUnit ? `<div class="marine-info-row"><span class="marine-info-label">Unit:</span> ${escapeHtml(data.marineUnit)}</div>` : ''}
+        ${data.markingPeriod ? `<div class="marine-info-row"><span class="marine-info-label">Period:</span> ${escapeHtml(data.markingPeriod)}</div>` : ''}
+      </div>
+      ` : ''}
+
+      <div class="section">
+        <div class="section-title">
+          Proficiency <span class="mark-display">${data.proMark}</span>
+        </div>
+        <div class="section-content">
+          ${data.proStatement ? escapeHtml(data.proStatement) : '<em style="color: #999;">No proficiency statement entered</em>'}
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">
+          Conduct <span class="mark-display">${data.conMark}</span>
+        </div>
+        <div class="section-content">
+          ${data.conStatement ? escapeHtml(data.conStatement) : '<em style="color: #999;">No conduct statement entered</em>'}
+        </div>
+      </div>
+
+      <div class="signature-section">
+        <div class="signature-block">
+          <div class="signature-line">Counseling NCO/SNCO Signature</div>
+          <div class="date-line signature-line">Date: ________________</div>
+        </div>
+        <div class="signature-block">
+          <div class="signature-line">Marine's Signature</div>
+          <div class="date-line signature-line">Date: ________________</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function generateCardHTML(data) {
+    return `
+      <div class="statement-block">
+        <div class="statement-label">Proficiency</div>
+        <div class="statement-text">
+          ${data.proStatement ? escapeHtml(data.proStatement) : '<em style="color: #999;">No statement</em>'}
+        </div>
+      </div>
+
+      <div class="statement-block">
+        <div class="statement-label">Conduct</div>
+        <div class="statement-text">
+          ${data.conStatement ? escapeHtml(data.conStatement) : '<em style="color: #999;">No statement</em>'}
+        </div>
+      </div>
+
+      <div class="marks-row">
+        <div class="mark-item">
+          <div class="mark-label">PRO</div>
+          <div class="mark-value">${data.proMark}</div>
+        </div>
+        <div class="mark-item">
+          <div class="mark-label">CON</div>
+          <div class="mark-value">${data.conMark}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function togglePreviewPanel() {
+    if (elements.previewPanel) {
+      elements.previewPanel.classList.toggle('hidden');
+    }
+  }
+
+  function togglePreviewFormat() {
+    previewFormat = previewFormat === 'worksheet' ? 'card' : 'worksheet';
+    if (elements.previewFormatLabel) {
+      elements.previewFormatLabel.textContent = previewFormat === 'worksheet' ? 'Worksheet' : 'Card';
+    }
+    updatePreview();
+  }
+
+  // ===========================================
+  // PDF Generation
+  // ===========================================
+  function openExportPdfModal() {
+    elements.exportPdfModal.classList.add('modal-overlay--active');
+  }
+
+  function closeExportPdfModal() {
+    elements.exportPdfModal.classList.remove('modal-overlay--active');
+  }
+
+  function generatePDF(format) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const data = getFormData();
+
+    if (format === 'worksheet') {
+      generateWorksheetPDF(doc, data);
+    } else {
+      generateCardPDF(doc, data);
+    }
+
+    // Generate filename
+    const filename = data.marineName
+      ? `proscons_${data.marineName.replace(/[^a-z0-9]/gi, '_')}.pdf`
+      : 'proscons_worksheet.pdf';
+
+    doc.save(filename);
+    closeExportPdfModal();
+    showToast('PDF downloaded successfully!');
+  }
+
+  function generateWorksheetPDF(doc, data) {
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 20;
+    const contentWidth = pageWidth - (margin * 2);
+    let y = 20;
+
+    // Header
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PROFICIENCY AND CONDUCT MARKS', pageWidth / 2, y, { align: 'center' });
+    y += 7;
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Counseling Worksheet', pageWidth / 2, y, { align: 'center' });
+    y += 10;
+
+    // Divider line
+    doc.setLineWidth(0.5);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 10;
+
+    // Marine Info Box
+    if (data.marineName || data.marineRank || data.marineUnit || data.markingPeriod) {
+      doc.setFillColor(245, 245, 245);
+      doc.rect(margin, y, contentWidth, 30, 'F');
+      doc.setDrawColor(200, 200, 200);
+      doc.rect(margin, y, contentWidth, 30, 'S');
+
+      y += 7;
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+
+      if (data.marineName) {
+        doc.text('Name:', margin + 5, y);
+        doc.setFont('helvetica', 'normal');
+        doc.text(data.marineName, margin + 25, y);
+        doc.setFont('helvetica', 'bold');
+      }
+      if (data.marineRank) {
+        doc.text('Rank:', margin + 100, y);
+        doc.setFont('helvetica', 'normal');
+        doc.text(data.marineRank, margin + 118, y);
+      }
+
+      y += 7;
+      doc.setFont('helvetica', 'bold');
+      if (data.marineUnit) {
+        doc.text('Unit:', margin + 5, y);
+        doc.setFont('helvetica', 'normal');
+        doc.text(data.marineUnit, margin + 20, y);
+        doc.setFont('helvetica', 'bold');
+      }
+      if (data.markingPeriod) {
+        doc.text('Period:', margin + 100, y);
+        doc.setFont('helvetica', 'normal');
+        doc.text(data.markingPeriod, margin + 122, y);
+      }
+
+      y += 20;
+    }
+
+    // Proficiency Section
+    y += 5;
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PROFICIENCY', margin, y);
+
+    // Mark box
+    doc.setFillColor(255, 255, 255);
+    doc.rect(pageWidth - margin - 25, y - 5, 25, 10, 'FD');
+    doc.setFontSize(11);
+    doc.text(data.proMark, pageWidth - margin - 12.5, y + 2, { align: 'center' });
+
+    y += 5;
+    doc.setLineWidth(0.3);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 7;
+
+    // Proficiency text
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    if (data.proStatement) {
+      const proLines = doc.splitTextToSize(data.proStatement, contentWidth - 10);
+      doc.text(proLines, margin + 5, y);
+      y += (proLines.length * 5) + 10;
+    } else {
+      doc.setTextColor(150, 150, 150);
+      doc.text('No proficiency statement entered', margin + 5, y);
+      doc.setTextColor(0, 0, 0);
+      y += 15;
+    }
+
+    // Conduct Section
+    y += 5;
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('CONDUCT', margin, y);
+
+    // Mark box
+    doc.rect(pageWidth - margin - 25, y - 5, 25, 10, 'FD');
+    doc.setFontSize(11);
+    doc.text(data.conMark, pageWidth - margin - 12.5, y + 2, { align: 'center' });
+
+    y += 5;
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 7;
+
+    // Conduct text
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    if (data.conStatement) {
+      const conLines = doc.splitTextToSize(data.conStatement, contentWidth - 10);
+      doc.text(conLines, margin + 5, y);
+      y += (conLines.length * 5) + 10;
+    } else {
+      doc.setTextColor(150, 150, 150);
+      doc.text('No conduct statement entered', margin + 5, y);
+      doc.setTextColor(0, 0, 0);
+      y += 15;
+    }
+
+    // Signature Section
+    y += 20;
+    const sigWidth = (contentWidth - 20) / 2;
+
+    // Left signature block
+    doc.line(margin, y, margin + sigWidth, y);
+    doc.setFontSize(9);
+    doc.text('Counseling NCO/SNCO Signature', margin, y + 5);
+    doc.text('Date: _______________', margin, y + 12);
+
+    // Right signature block
+    doc.line(margin + sigWidth + 20, y, pageWidth - margin, y);
+    doc.text("Marine's Signature", margin + sigWidth + 20, y + 5);
+    doc.text('Date: _______________', margin + sigWidth + 20, y + 12);
+  }
+
+  function generateCardPDF(doc, data) {
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 20;
+    const contentWidth = pageWidth - (margin * 2);
+    let y = 30;
+
+    // Simple header
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PROS/CONS STATEMENT', pageWidth / 2, y, { align: 'center' });
+    y += 15;
+
+    if (data.marineName) {
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'normal');
+      doc.text(data.marineName, pageWidth / 2, y, { align: 'center' });
+      y += 10;
+    }
+
+    // Proficiency box
+    y += 5;
+    doc.setFillColor(139, 0, 0);
+    doc.rect(margin, y, 4, 30, 'F');
+    doc.setDrawColor(200, 200, 200);
+    doc.rect(margin, y, contentWidth, 30, 'S');
+
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PROFICIENCY', margin + 8, y + 7);
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    if (data.proStatement) {
+      const proLines = doc.splitTextToSize(data.proStatement, contentWidth - 15);
+      doc.text(proLines.slice(0, 3), margin + 8, y + 14);
+    }
+
+    y += 35;
+
+    // Conduct box
+    doc.setFillColor(139, 0, 0);
+    doc.rect(margin, y, 4, 30, 'F');
+    doc.rect(margin, y, contentWidth, 30, 'S');
+
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.text('CONDUCT', margin + 8, y + 7);
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    if (data.conStatement) {
+      const conLines = doc.splitTextToSize(data.conStatement, contentWidth - 15);
+      doc.text(conLines.slice(0, 3), margin + 8, y + 14);
+    }
+
+    y += 40;
+
+    // Marks display
+    doc.setLineWidth(0.3);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 10;
+
+    const centerX = pageWidth / 2;
+
+    // PRO mark
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text('PRO', centerX - 25, y, { align: 'center' });
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.text(data.proMark, centerX - 25, y + 12, { align: 'center' });
+
+    // CON mark
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text('CON', centerX + 25, y, { align: 'center' });
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.text(data.conMark, centerX + 25, y + 12, { align: 'center' });
+  }
+
+  // ===========================================
+  // Get Form Data
+  // ===========================================
+  function getFormData() {
+    return {
+      marineName: elements.marineName ? elements.marineName.value.trim() : '',
+      marineRank: elements.marineRank ? elements.marineRank.value : '',
+      marineUnit: elements.marineUnit ? elements.marineUnit.value.trim() : '',
+      markingPeriod: elements.markingPeriod ? elements.markingPeriod.value.trim() : '',
+      proStatement: elements.proficiencyStatement.value.trim(),
+      conStatement: elements.conductStatement.value.trim(),
+      proMark: elements.proMark.value,
+      conMark: elements.conMark.value,
+      performanceLevel: elements.performanceLevel.value,
+      mosType: elements.mosType.value
+    };
   }
 
   // ===========================================
@@ -331,6 +786,7 @@
 
     updateCharCount(type);
     checkAlignment();
+    updatePreview();
     textarea.focus();
   }
 
@@ -374,8 +830,8 @@
       const item = document.createElement('div');
       item.className = 'phrase-item';
       item.innerHTML = `
-        <input type="checkbox" id="phrase-${index}" value="${phrase}">
-        <label for="phrase-${index}">${phrase}</label>
+        <input type="checkbox" id="phrase-${index}" value="${escapeHtml(phrase)}">
+        <label for="phrase-${index}">${escapeHtml(phrase)}</label>
       `;
       elements.phraseList.appendChild(item);
     });
@@ -442,6 +898,7 @@
     elements.conMark.value = suggestedMarks.con;
 
     checkAlignment();
+    updatePreview();
     showToast(`Applied ${Templates.getTemplate(templateId).name} template`);
   }
 
@@ -449,24 +906,27 @@
   // Copy to Clipboard
   // ===========================================
   async function copyToClipboard() {
-    const proStatement = elements.proficiencyStatement.value.trim();
-    const conStatement = elements.conductStatement.value.trim();
-    const proMark = elements.proMark.value;
-    const conMark = elements.conMark.value;
+    const data = getFormData();
 
-    if (!proStatement && !conStatement) {
+    if (!data.proStatement && !data.conStatement) {
       showToast('Please enter at least one statement');
       return;
     }
 
     let text = '';
 
-    if (proStatement) {
-      text += `PROFICIENCY (${proMark}):\n${proStatement}\n\n`;
+    if (data.marineName) {
+      text += `${data.marineRank ? data.marineRank + ' ' : ''}${data.marineName}\n`;
+      if (data.markingPeriod) text += `Period: ${data.markingPeriod}\n`;
+      text += '\n';
     }
 
-    if (conStatement) {
-      text += `CONDUCT (${conMark}):\n${conStatement}`;
+    if (data.proStatement) {
+      text += `PROFICIENCY (${data.proMark}):\n${data.proStatement}\n\n`;
+    }
+
+    if (data.conStatement) {
+      text += `CONDUCT (${data.conMark}):\n${data.conStatement}`;
     }
 
     try {
@@ -494,7 +954,8 @@
   // Save Draft Modal
   // ===========================================
   function openSaveDraftModal() {
-    elements.draftName.value = '';
+    const data = getFormData();
+    elements.draftName.value = data.marineName || '';
     elements.saveDraftModal.classList.add('modal-overlay--active');
     elements.draftName.focus();
   }
@@ -512,16 +973,10 @@
       return;
     }
 
-    const draftData = {
-      proStatement: elements.proficiencyStatement.value,
-      conStatement: elements.conductStatement.value,
-      proMark: elements.proMark.value,
-      conMark: elements.conMark.value,
-      performanceLevel: elements.performanceLevel.value,
-      mosType: elements.mosType.value
-    };
+    const data = getFormData();
+    data.name = name;
 
-    Storage.saveDraft(name, draftData);
+    Storage.saveDraft(name, data);
     closeSaveDraftModal();
     showToast('Draft saved successfully!');
   }
@@ -585,6 +1040,13 @@
       return;
     }
 
+    // Load marine info
+    if (elements.marineName) elements.marineName.value = draft.marineName || '';
+    if (elements.marineRank) elements.marineRank.value = draft.marineRank || '';
+    if (elements.marineUnit) elements.marineUnit.value = draft.marineUnit || '';
+    if (elements.markingPeriod) elements.markingPeriod.value = draft.markingPeriod || '';
+
+    // Load statements and marks
     elements.proficiencyStatement.value = draft.proStatement || '';
     elements.conductStatement.value = draft.conStatement || '';
     elements.proMark.value = draft.proMark || '4.0';
@@ -596,6 +1058,7 @@
     updateCharCount('conduct');
     updateQuickPhrases();
     checkAlignment();
+    updatePreview();
 
     closeLoadDraftModal();
     showToast('Draft loaded successfully!');
@@ -614,6 +1077,13 @@
   // ===========================================
   function resetForm() {
     if (confirm('Are you sure you want to reset all fields?')) {
+      // Reset marine info
+      if (elements.marineName) elements.marineName.value = '';
+      if (elements.marineRank) elements.marineRank.value = '';
+      if (elements.marineUnit) elements.marineUnit.value = '';
+      if (elements.markingPeriod) elements.markingPeriod.value = '';
+
+      // Reset statements
       elements.proficiencyStatement.value = '';
       elements.conductStatement.value = '';
       elements.performanceLevel.value = '4.0';
@@ -625,6 +1095,7 @@
       updateCharCount('conduct');
       updateQuickPhrases();
       elements.alignmentWarning.classList.add('hidden');
+      updatePreview();
 
       showToast('Form reset');
     }
