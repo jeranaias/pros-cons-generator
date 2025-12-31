@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Generate proficiency and conduct marking statements with keyword banks, customizable templates, and proper formatting for USMC counselings.">
+  <title>Pros/Cons Generator - USMC Tools</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#8B0000">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Skip Link - Accessibility -->
+  <a href="#main" class="skip-link">Skip to main content</a>
+
+  <!-- Header -->
+  <header class="header no-print">
+    <div class="container">
+      <div class="header__content">
+        <div>
+          <h1 class="header__title">Pros/Cons Generator</h1>
+          <p class="header__subtitle">Proficiency & Conduct Marking Statement Builder</p>
+        </div>
+        <button id="themeToggle" class="btn btn--ghost theme-toggle" aria-label="Toggle theme">
+          <svg class="icon icon--sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg class="icon icon--moon hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <svg class="icon icon--tactical hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="16"></line>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main id="main" class="container main-content">
+    <!-- Configuration Row -->
+    <div class="card mb-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="form-group">
+          <label class="label" for="performanceLevel">Performance Level</label>
+          <select class="input select" id="performanceLevel">
+            <option value="5.0">Outstanding (5.0)</option>
+            <option value="4.5">Excellent (4.5)</option>
+            <option value="4.0" selected>Above Average (4.0)</option>
+            <option value="3.5">Slightly Above Average (3.5)</option>
+            <option value="3.0">Average (3.0)</option>
+            <option value="2.5">Below Average (2.5)</option>
+            <option value="2.0">Poor (2.0)</option>
+            <option value="1.5">Very Poor (1.5)</option>
+            <option value="1.0">Failing (1.0)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="label" for="mosType">MOS Type</label>
+          <select class="input select" id="mosType">
+            <option value="general" selected>General</option>
+            <option value="admin">Admin/Personnel</option>
+            <option value="combat">Combat Arms</option>
+            <option value="aviation">Aviation</option>
+            <option value="logistics">Logistics</option>
+            <option value="communications">Communications</option>
+            <option value="intelligence">Intelligence</option>
+            <option value="motor-t">Motor Transport</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Proficiency Section -->
+    <div class="card mb-4">
+      <div class="card__header flex justify-between items-center">
+        <div>
+          <h2 class="card__title">Proficiency Statement</h2>
+          <p class="card__subtitle">Describe duty performance, technical skills, and leadership</p>
+        </div>
+        <button class="btn btn--outline btn--sm" id="openProPhraseBank">+ Add Phrase</button>
+      </div>
+      <div class="form-group">
+        <textarea
+          class="input textarea"
+          id="proficiencyStatement"
+          rows="5"
+          placeholder="Enter proficiency statement..."
+          maxlength="500"
+        ></textarea>
+        <div class="flex justify-between items-center mt-2">
+          <span class="char-counter" id="proCharCount">0/500</span>
+          <button class="btn btn--ghost btn--sm" id="clearPro">Clear</button>
+        </div>
+      </div>
+      <div class="quick-phrases" id="proQuickPhrases">
+        <span class="quick-phrases__label">Quick Phrases:</span>
+        <div class="quick-phrases__list" id="proQuickPhrasesList"></div>
+      </div>
+    </div>
+
+    <!-- Conduct Section -->
+    <div class="card mb-4">
+      <div class="card__header flex justify-between items-center">
+        <div>
+          <h2 class="card__title">Conduct Statement</h2>
+          <p class="card__subtitle">Describe bearing, behavior, influence, and compliance</p>
+        </div>
+        <button class="btn btn--outline btn--sm" id="openConPhraseBank">+ Add Phrase</button>
+      </div>
+      <div class="form-group">
+        <textarea
+          class="input textarea"
+          id="conductStatement"
+          rows="5"
+          placeholder="Enter conduct statement..."
+          maxlength="500"
+        ></textarea>
+        <div class="flex justify-between items-center mt-2">
+          <span class="char-counter" id="conCharCount">0/500</span>
+          <button class="btn btn--ghost btn--sm" id="clearCon">Clear</button>
+        </div>
+      </div>
+      <div class="quick-phrases" id="conQuickPhrases">
+        <span class="quick-phrases__label">Quick Phrases:</span>
+        <div class="quick-phrases__list" id="conQuickPhrasesList"></div>
+      </div>
+    </div>
+
+    <!-- Mark Recommendation Section -->
+    <div class="card mb-4">
+      <div class="card__header">
+        <h2 class="card__title">Recommended Marks</h2>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="form-group">
+          <label class="label" for="proMark">Proficiency Mark</label>
+          <select class="input select" id="proMark">
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="label" for="conMark">Conduct Mark</label>
+          <select class="input select" id="conMark">
+          </select>
+        </div>
+      </div>
+      <div id="alignmentWarning" class="alert alert--info mt-4 hidden">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <span id="alignmentMessage"></span>
+      </div>
+    </div>
+
+    <!-- Templates Section -->
+    <div class="card mb-4">
+      <div class="card__header">
+        <h2 class="card__title">Statement Templates</h2>
+        <p class="card__subtitle">Pre-formatted templates for common situations</p>
+      </div>
+      <div class="template-buttons flex flex-wrap gap-2">
+        <button class="btn btn--outline btn--sm" data-template="promotion">Promotion Statement</button>
+        <button class="btn btn--outline btn--sm" data-template="semiannual">Semi-Annual Counseling</button>
+        <button class="btn btn--outline btn--sm" data-template="adverse">Adverse Counseling</button>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="card action-bar">
+      <div class="flex flex-wrap gap-3 justify-between">
+        <div class="flex flex-wrap gap-3">
+          <button class="btn btn--primary" id="copyToClipboard">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            Copy to Clipboard
+          </button>
+          <button class="btn btn--secondary" id="saveDraft">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+              <polyline points="17 21 17 13 7 13 7 21"></polyline>
+              <polyline points="7 3 7 8 15 8"></polyline>
+            </svg>
+            Save Draft
+          </button>
+        </div>
+        <div class="flex flex-wrap gap-3">
+          <button class="btn btn--outline" id="loadDraft">Load Draft</button>
+          <button class="btn btn--ghost" id="resetForm">Reset All</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Copy Success Toast -->
+    <div id="toast" class="toast hidden">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+      <span id="toastMessage">Copied to clipboard!</span>
+    </div>
+  </main>
+
+  <!-- Phrase Bank Modal -->
+  <div class="modal-overlay" id="phraseBankModal">
+    <div class="modal">
+      <div class="modal__header flex justify-between items-center">
+        <h3 class="modal__title" id="phraseBankTitle">Phrase Bank - Proficiency</h3>
+        <button class="btn btn--ghost btn--sm" id="closeModal">&times;</button>
+      </div>
+      <div class="modal__body">
+        <div class="form-group">
+          <label class="label" for="phraseLevel">Performance Level</label>
+          <select class="input select" id="phraseLevel">
+            <option value="5.0">Outstanding (5.0)</option>
+            <option value="4.5">Excellent (4.5)</option>
+            <option value="4.0" selected>Above Average (4.0)</option>
+            <option value="3.5">Average (3.0-3.5)</option>
+            <option value="2.5">Below Average (2.0-2.5)</option>
+            <option value="1.5">Poor (1.0-1.5)</option>
+          </select>
+        </div>
+        <div class="phrase-list" id="phraseList">
+          <!-- Phrases will be populated by JS -->
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--ghost" id="cancelPhrases">Cancel</button>
+        <button class="btn btn--primary" id="addSelectedPhrases">Add Selected</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Save Draft Modal -->
+  <div class="modal-overlay" id="saveDraftModal">
+    <div class="modal">
+      <div class="modal__header flex justify-between items-center">
+        <h3 class="modal__title">Save Draft</h3>
+        <button class="btn btn--ghost btn--sm" id="closeSaveModal">&times;</button>
+      </div>
+      <div class="modal__body">
+        <div class="form-group">
+          <label class="label label--required" for="draftName">Marine's Name / Draft Title</label>
+          <input type="text" class="input" id="draftName" placeholder="e.g., LCpl Smith - Jan 2025">
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--ghost" id="cancelSave">Cancel</button>
+        <button class="btn btn--primary" id="confirmSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load Draft Modal -->
+  <div class="modal-overlay" id="loadDraftModal">
+    <div class="modal">
+      <div class="modal__header flex justify-between items-center">
+        <h3 class="modal__title">Load Draft</h3>
+        <button class="btn btn--ghost btn--sm" id="closeLoadModal">&times;</button>
+      </div>
+      <div class="modal__body">
+        <div class="draft-list" id="draftList">
+          <!-- Drafts will be populated by JS -->
+        </div>
+        <p class="text-secondary text-sm" id="noDrafts">No saved drafts found.</p>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--ghost" id="cancelLoad">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer no-print">
+    <div class="container">
+      <p class="text-sm text-secondary text-center">
+        Free and open source. <a href="https://github.com/jeranaias/pros-cons-generator">View on GitHub</a>
+      </p>
+      <p class="text-sm text-secondary text-center mt-4">
+        Part of the <a href="https://jeranaias.github.io/usmc-tools/">USMC Tools</a> suite.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/phrases.js"></script>
+  <script src="js/templates.js"></script>
+  <script src="js/alignment.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/app.js"></script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js');
+    }
+  </script>
+</body>
+</html>
