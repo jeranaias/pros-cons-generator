@@ -3,6 +3,38 @@
  * USMC Proficiency & Conduct Marking Statement Builder
  */
 
+// ===========================================
+// PWA Install Prompt Handling
+// ===========================================
+let deferredInstallPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  const installBtn = document.getElementById('pwa-install-btn');
+  if (installBtn) {
+    installBtn.style.display = 'inline-block';
+  }
+});
+
+function installPWA() {
+  if (!deferredInstallPrompt) {
+    alert('To install: Use your browser menu → "Add to Home Screen" or "Install App"');
+    return;
+  }
+  deferredInstallPrompt.prompt();
+  deferredInstallPrompt.userChoice.then((choiceResult) => {
+    deferredInstallPrompt = null;
+    const installBtn = document.getElementById('pwa-install-btn');
+    if (installBtn) {
+      installBtn.style.display = 'none';
+    }
+  });
+}
+
+// Make installPWA available globally
+window.installPWA = installPWA;
+
 (function() {
   'use strict';
 
@@ -312,6 +344,12 @@
 
     // Reset form
     elements.resetForm.addEventListener('click', resetForm);
+
+    // PWA Install button
+    const pwaInstallBtn = document.getElementById('pwa-install-btn');
+    if (pwaInstallBtn) {
+      pwaInstallBtn.addEventListener('click', installPWA);
+    }
 
     // Template buttons
     document.querySelectorAll('[data-template]').forEach(btn => {
