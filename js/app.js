@@ -1162,8 +1162,9 @@
     if (elements.markingPeriod) elements.markingPeriod.value = markingPeriod;
 
     // Set performance level and MOS type first (affects quick phrases)
-    if (elements.performanceLevel) elements.performanceLevel.value = '4.4';
-    if (elements.mosType) elements.mosType.value = 'infantry';
+    // Note: Using 4.5 (Excellent) as it's the closest valid option to demonstrate above-average Marine
+    if (elements.performanceLevel) elements.performanceLevel.value = '4.5';
+    if (elements.mosType) elements.mosType.value = 'combat';
 
     // Sample proficiency statement (4.4 level - above average infantry Marine)
     if (elements.proficiencyStatement) {
@@ -1189,9 +1190,9 @@
         'Embodies our Core Values and serves as a positive role model for the platoon.';
     }
 
-    // Set marks to match performance level
-    if (elements.proMark) elements.proMark.value = '4.4';
-    if (elements.conMark) elements.conMark.value = '4.4';
+    // Set marks to match performance level (4.5)
+    if (elements.proMark) elements.proMark.value = '4.5';
+    if (elements.conMark) elements.conMark.value = '4.5';
 
     // Update all UI elements
     updateCharCount('proficiency');

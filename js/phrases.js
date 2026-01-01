@@ -265,6 +265,12 @@ const PhraseBanks = {
 
     // Handle ranges (e.g., 3.5 and 3.0 share same phrases)
     const levelFloat = parseFloat(level);
+
+    // Default to 4.0 (above average) if level is empty, NaN, or invalid
+    if (isNaN(levelFloat) || levelFloat < 1.0 || levelFloat > 5.0) {
+      return bank['4.0'] || [];
+    }
+
     if (levelFloat >= 5.0) return bank['5.0'] || [];
     if (levelFloat >= 4.5) return bank['4.5'] || [];
     if (levelFloat >= 4.0) return bank['4.0'] || [];
