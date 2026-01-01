@@ -391,13 +391,17 @@
 
   async function updateLivePreview() {
     if (!previewEnabled) return;
-
     if (!elements.previewFrame) return;
 
+    // Show loading spinner
+    if (elements.previewLoading) {
+      elements.previewLoading.classList.add('show');
+    }
+
     try {
-      // Show loading spinner
-      if (elements.previewLoading) {
-        elements.previewLoading.classList.add('show');
+      // Check if jsPDF is loaded
+      if (!window.jspdf || !window.jspdf.jsPDF) {
+        throw new Error('PDF library not loaded yet. Please wait a moment and try again.');
       }
 
       // Generate PDF blob
@@ -416,15 +420,32 @@
       }
     } catch (error) {
       console.error('Preview generation error:', error);
+      // Show error message in iframe
+      const errorHtml = `
+        <html>
+          <body style="display:flex;align-items:center;justify-content:center;height:100vh;margin:0;font-family:system-ui,sans-serif;background:#f5f5f5;color:#666;">
+            <div style="text-align:center;padding:20px;">
+              <p style="font-size:14px;margin:0 0 8px;">Preview unavailable</p>
+              <p style="font-size:12px;margin:0;color:#999;">${error.message || 'Try again in a moment'}</p>
+            </div>
+          </body>
+        </html>
+      `;
+      elements.previewFrame.srcdoc = errorHtml;
     } finally {
-      // Hide loading spinner
+      // Always hide loading spinner
       if (elements.previewLoading) {
         elements.previewLoading.classList.remove('show');
       }
     }
   }
 
-  async function generatePDFBlob() {
+  function generatePDFBlob() {
+    // Ensure jsPDF is available
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+      return null;
+    }
+
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     const data = getFormData();
@@ -1124,29 +1145,61 @@
   // Load Example Data
   // ===========================================
   function loadExample() {
-    // Sample Marine info
-    if (elements.marineName) elements.marineName.value = 'SMITH, JOHN A';
-    if (elements.marineRank) elements.marineRank.value = 'LCpl';
-    if (elements.marineUnit) elements.marineUnit.value = '1st Bn, 5th Marines';
-    if (elements.markingPeriod) elements.markingPeriod.value = 'OCT 2024 - MAR 2025';
+    // Generate current marking period (last 6 months)
+    const now = new Date();
+    const endMonth = now.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+    const endYear = now.getFullYear();
+    const startDate = new Date(now);
+    startDate.setMonth(startDate.getMonth() - 6);
+    const startMonth = startDate.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+    const startYear = startDate.getFullYear();
+    const markingPeriod = `${startMonth} ${startYear} - ${endMonth} ${endYear}`;
 
-    // Sample proficiency statement (4.4 level - above average)
-    elements.proficiencyStatement.value = 'LCpl Smith consistently demonstrates exceptional technical proficiency in all aspects of his MOS. He has trained 3 junior Marines on weapons maintenance procedures and led his fire team during MOUT training with outstanding results. Completed all assigned PME ahead of schedule and actively pursues self-improvement. Recommended for promotion to Corporal.';
+    // Sample Marine info - comprehensive data
+    if (elements.marineName) elements.marineName.value = 'RODRIGUEZ, MARCUS A';
+    if (elements.marineRank) elements.marineRank.value = 'LCpl';
+    if (elements.marineUnit) elements.marineUnit.value = '1st Bn, 5th Marines, 1st MarDiv';
+    if (elements.markingPeriod) elements.markingPeriod.value = markingPeriod;
+
+    // Set performance level and MOS type first (affects quick phrases)
+    if (elements.performanceLevel) elements.performanceLevel.value = '4.4';
+    if (elements.mosType) elements.mosType.value = 'infantry';
+
+    // Sample proficiency statement (4.4 level - above average infantry Marine)
+    if (elements.proficiencyStatement) {
+      elements.proficiencyStatement.value =
+        'LCpl Rodriguez consistently demonstrates exceptional tactical proficiency and technical expertise as a Rifleman. ' +
+        'He served as point man during 3 company-level field exercises, displaying superior land navigation and patrol skills. ' +
+        'Qualified Expert on rifle and pistol ranges with a combined score of 342/350. ' +
+        'Successfully trained 4 junior Marines on weapon maintenance, field sanitation, and radio procedures. ' +
+        'Completed Marine Corps Institute courses in Leadership and Small Unit Tactics ahead of schedule. ' +
+        'Selected to represent the platoon in the battalion Warrior Competition, placing 2nd overall. ' +
+        'Recommended for promotion to Corporal and assignment as a Fire Team Leader.';
+    }
 
     // Sample conduct statement (4.4 level)
-    elements.conductStatement.value = 'LCpl Smith exemplifies the highest standards of military bearing and conduct. He maintains impeccable personal appearance and is always squared away for inspection. Demonstrates maturity beyond his rank and serves as a positive role model for junior Marines. Zero adverse conduct issues during this marking period. Actively participates in unit volunteer events and embodies our core values.';
+    if (elements.conductStatement) {
+      elements.conductStatement.value =
+        'LCpl Rodriguez exemplifies the highest standards of military bearing and personal conduct expected of a Marine. ' +
+        'Maintains impeccable personal appearance and is always inspection-ready. ' +
+        'Demonstrates exceptional maturity and leadership ability, routinely mentoring junior Marines both on and off duty. ' +
+        'Zero adverse Page 11 entries or NJP during this reporting period. ' +
+        'Scored 285 on PFT (1st Class) and 295 on CFT. Height/weight in compliance. ' +
+        'Actively volunteers for unit functions and community events, logging 24 hours of community service. ' +
+        'Embodies our Core Values and serves as a positive role model for the platoon.';
+    }
 
-    // Set marks
-    elements.proMark.value = '4.4';
-    elements.conMark.value = '4.4';
-    elements.performanceLevel.value = '4.4';
-    elements.mosType.value = 'general';
+    // Set marks to match performance level
+    if (elements.proMark) elements.proMark.value = '4.4';
+    if (elements.conMark) elements.conMark.value = '4.4';
 
-    // Update UI
+    // Update all UI elements
     updateCharCount('proficiency');
     updateCharCount('conduct');
     updateQuickPhrases();
     checkAlignment();
+
+    // Trigger preview update
     schedulePreviewUpdate();
 
     showToast('Example loaded! Edit fields as needed.');
