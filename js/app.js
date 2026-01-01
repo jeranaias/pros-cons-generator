@@ -96,12 +96,14 @@
     alignmentWarning: document.getElementById('alignmentWarning'),
     alignmentMessage: document.getElementById('alignmentMessage'),
 
-    // Preview
-    previewPanel: document.querySelector('.preview-panel'),
-    previewDocument: document.getElementById('previewDocument'),
-    togglePreview: document.getElementById('togglePreview'),
-    togglePreviewFormat: document.getElementById('togglePreviewFormat'),
-    previewFormatLabel: document.getElementById('previewFormatLabel'),
+    // Live PDF Preview
+    livePreviewPane: document.getElementById('livePreviewPane'),
+    previewToggle: document.getElementById('previewToggle'),
+    closePreview: document.getElementById('closePreview'),
+    previewFrame: document.getElementById('previewFrame'),
+    previewLoading: document.getElementById('previewLoading'),
+    previewFormatSelect: document.getElementById('previewFormatSelect'),
+    mainContent: document.querySelector('.main-content'),
 
     // Toast
     toast: document.getElementById('toast'),
@@ -141,7 +143,9 @@
   // Current phrase bank type being edited
   let currentPhraseType = 'proficiency';
 
-  // Preview format: 'worksheet' or 'card'
+  // Live PDF Preview state
+  let previewDebounceTimer = null;
+  let previewEnabled = false;
   let previewFormat = 'worksheet';
 
   // ===========================================
@@ -164,8 +168,11 @@
     updateCharCount('proficiency');
     updateCharCount('conduct');
 
-    // Initialize preview
-    updatePreview();
+    // Restore live preview state from localStorage
+    const savedPreviewState = localStorage.getItem('livePreviewEnabled');
+    if (savedPreviewState === 'true') {
+      toggleLivePreview();
+    }
   }
 
   // ===========================================
@@ -202,45 +209,59 @@
       elements.loadExample.addEventListener('click', loadExample);
     }
 
+    // Live PDF Preview controls
+    if (elements.previewToggle) {
+      elements.previewToggle.addEventListener('click', toggleLivePreview);
+    }
+    if (elements.closePreview) {
+      elements.closePreview.addEventListener('click', toggleLivePreview);
+    }
+    if (elements.previewFormatSelect) {
+      elements.previewFormatSelect.addEventListener('change', (e) => {
+        previewFormat = e.target.value;
+        schedulePreviewUpdate();
+      });
+    }
+
     // Marine info changes
     [elements.marineName, elements.marineRank, elements.marineUnit, elements.markingPeriod].forEach(el => {
-      if (el) el.addEventListener('input', updatePreview);
+      if (el) el.addEventListener('input', schedulePreviewUpdate);
     });
 
     // Performance level change
     elements.performanceLevel.addEventListener('change', () => {
       updateQuickPhrases();
       syncMarksToLevel();
-      updatePreview();
+      schedulePreviewUpdate();
     });
 
     // MOS type change
     elements.mosType.addEventListener('change', () => {
       updateQuickPhrases();
-      updatePreview();
+      schedulePreviewUpdate();
     });
 
     // Statement input handlers
     elements.proficiencyStatement.addEventListener('input', () => {
       updateCharCount('proficiency');
       checkAlignment();
-      updatePreview();
+      schedulePreviewUpdate();
     });
 
     elements.conductStatement.addEventListener('input', () => {
       updateCharCount('conduct');
       checkAlignment();
-      updatePreview();
+      schedulePreviewUpdate();
     });
 
     // Mark change handlers
     elements.proMark.addEventListener('change', () => {
       checkAlignment();
-      updatePreview();
+      schedulePreviewUpdate();
     });
     elements.conMark.addEventListener('change', () => {
       checkAlignment();
-      updatePreview();
+      schedulePreviewUpdate();
     });
 
     // Clear buttons
@@ -248,14 +269,14 @@
       elements.proficiencyStatement.value = '';
       updateCharCount('proficiency');
       checkAlignment();
-      updatePreview();
+      schedulePreviewUpdate();
     });
 
     elements.clearCon.addEventListener('click', () => {
       elements.conductStatement.value = '';
       updateCharCount('conduct');
       checkAlignment();
-      updatePreview();
+      schedulePreviewUpdate();
     });
 
     // Phrase bank buttons
@@ -292,14 +313,6 @@
     // Reset form
     elements.resetForm.addEventListener('click', resetForm);
 
-    // Preview controls
-    if (elements.togglePreview) {
-      elements.togglePreview.addEventListener('click', togglePreviewPanel);
-    }
-    if (elements.togglePreviewFormat) {
-      elements.togglePreviewFormat.addEventListener('click', togglePreviewFormat);
-    }
-
     // Template buttons
     document.querySelectorAll('[data-template]').forEach(btn => {
       btn.addEventListener('click', () => applyTemplate(btn.dataset.template));
@@ -329,134 +342,99 @@
   }
 
   // ===========================================
-  // Preview Functions
+  // Live PDF Preview Functions
   // ===========================================
-  function updatePreview() {
-    if (!elements.previewDocument) return;
+  function toggleLivePreview() {
+    previewEnabled = !previewEnabled;
 
-    const data = getFormData();
-    const hasContent = data.proStatement || data.conStatement || data.marineName;
-
-    if (!hasContent) {
-      elements.previewDocument.innerHTML = `
-        <div class="preview-placeholder">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-            <polyline points="14 2 14 8 20 8"></polyline>
-            <line x1="16" y1="13" x2="8" y2="13"></line>
-            <line x1="16" y1="17" x2="8" y2="17"></line>
-            <polyline points="10 9 9 9 8 9"></polyline>
+    if (previewEnabled) {
+      elements.mainContent.classList.add('preview-active');
+      elements.livePreviewPane.classList.add('show');
+      if (elements.previewToggle) {
+        elements.previewToggle.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+            <line x1="1" y1="1" x2="23" y2="23"></line>
           </svg>
-          <p>Start entering information<br>to see live preview</p>
-          <span class="preview-hint">or click "Load Example" to see a sample</span>
-        </div>
-      `;
-      return;
+          Hide Preview
+        `;
+      }
+      updateLivePreview();
+    } else {
+      elements.mainContent.classList.remove('preview-active');
+      elements.livePreviewPane.classList.remove('show');
+      if (elements.previewToggle) {
+        elements.previewToggle.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+          Live Preview
+        `;
+      }
     }
+
+    localStorage.setItem('livePreviewEnabled', previewEnabled);
+  }
+
+  function schedulePreviewUpdate() {
+    if (!previewEnabled) return;
+
+    if (previewDebounceTimer) {
+      clearTimeout(previewDebounceTimer);
+    }
+
+    previewDebounceTimer = setTimeout(updateLivePreview, 750);
+  }
+
+  async function updateLivePreview() {
+    if (!previewEnabled) return;
+
+    if (!elements.previewFrame) return;
+
+    try {
+      // Show loading spinner
+      if (elements.previewLoading) {
+        elements.previewLoading.classList.add('show');
+      }
+
+      // Generate PDF blob
+      const pdfBlob = await generatePDFBlob();
+
+      if (pdfBlob) {
+        const blobUrl = URL.createObjectURL(pdfBlob);
+
+        // Revoke old blob URL to prevent memory leaks
+        if (elements.previewFrame.dataset.blobUrl) {
+          URL.revokeObjectURL(elements.previewFrame.dataset.blobUrl);
+        }
+
+        elements.previewFrame.src = blobUrl;
+        elements.previewFrame.dataset.blobUrl = blobUrl;
+      }
+    } catch (error) {
+      console.error('Preview generation error:', error);
+    } finally {
+      // Hide loading spinner
+      if (elements.previewLoading) {
+        elements.previewLoading.classList.remove('show');
+      }
+    }
+  }
+
+  async function generatePDFBlob() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const data = getFormData();
 
     if (previewFormat === 'worksheet') {
-      elements.previewDocument.classList.remove('card-format');
-      elements.previewDocument.innerHTML = generateWorksheetHTML(data);
+      generateWorksheetPDF(doc, data);
     } else {
-      elements.previewDocument.classList.add('card-format');
-      elements.previewDocument.innerHTML = generateCardHTML(data);
+      generateCardPDF(doc, data);
     }
-  }
 
-  function generateWorksheetHTML(data) {
-    const today = new Date().toLocaleDateString('en-US', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    }).toUpperCase();
-
-    return `
-      <div class="doc-header">
-        <div class="doc-title">Proficiency and Conduct Marks</div>
-        <div class="doc-subtitle">Counseling Worksheet</div>
-      </div>
-
-      ${(data.marineName || data.marineRank || data.marineUnit || data.markingPeriod) ? `
-      <div class="marine-info">
-        ${data.marineName ? `<div class="marine-info-row"><span class="marine-info-label">Name:</span> ${escapeHtml(data.marineName)}</div>` : ''}
-        ${data.marineRank ? `<div class="marine-info-row"><span class="marine-info-label">Rank:</span> ${escapeHtml(data.marineRank)}</div>` : ''}
-        ${data.marineUnit ? `<div class="marine-info-row"><span class="marine-info-label">Unit:</span> ${escapeHtml(data.marineUnit)}</div>` : ''}
-        ${data.markingPeriod ? `<div class="marine-info-row"><span class="marine-info-label">Period:</span> ${escapeHtml(data.markingPeriod)}</div>` : ''}
-      </div>
-      ` : ''}
-
-      <div class="section">
-        <div class="section-title">
-          Proficiency <span class="mark-display">${data.proMark}</span>
-        </div>
-        <div class="section-content">
-          ${data.proStatement ? escapeHtml(data.proStatement) : '<em style="color: #999;">No proficiency statement entered</em>'}
-        </div>
-      </div>
-
-      <div class="section">
-        <div class="section-title">
-          Conduct <span class="mark-display">${data.conMark}</span>
-        </div>
-        <div class="section-content">
-          ${data.conStatement ? escapeHtml(data.conStatement) : '<em style="color: #999;">No conduct statement entered</em>'}
-        </div>
-      </div>
-
-      <div class="signature-section">
-        <div class="signature-block">
-          <div class="signature-line">Counseling NCO/SNCO Signature</div>
-          <div class="date-line signature-line">Date: ________________</div>
-        </div>
-        <div class="signature-block">
-          <div class="signature-line">Marine's Signature</div>
-          <div class="date-line signature-line">Date: ________________</div>
-        </div>
-      </div>
-    `;
-  }
-
-  function generateCardHTML(data) {
-    return `
-      <div class="statement-block">
-        <div class="statement-label">Proficiency</div>
-        <div class="statement-text">
-          ${data.proStatement ? escapeHtml(data.proStatement) : '<em style="color: #999;">No statement</em>'}
-        </div>
-      </div>
-
-      <div class="statement-block">
-        <div class="statement-label">Conduct</div>
-        <div class="statement-text">
-          ${data.conStatement ? escapeHtml(data.conStatement) : '<em style="color: #999;">No statement</em>'}
-        </div>
-      </div>
-
-      <div class="marks-row">
-        <div class="mark-item">
-          <div class="mark-label">PRO</div>
-          <div class="mark-value">${data.proMark}</div>
-        </div>
-        <div class="mark-item">
-          <div class="mark-label">CON</div>
-          <div class="mark-value">${data.conMark}</div>
-        </div>
-      </div>
-    `;
-  }
-
-  function togglePreviewPanel() {
-    if (elements.previewPanel) {
-      elements.previewPanel.classList.toggle('hidden');
-    }
-  }
-
-  function togglePreviewFormat() {
-    previewFormat = previewFormat === 'worksheet' ? 'card' : 'worksheet';
-    if (elements.previewFormatLabel) {
-      elements.previewFormatLabel.textContent = previewFormat === 'worksheet' ? 'Worksheet' : 'Card';
-    }
-    updatePreview();
+    // Return as blob instead of saving
+    return doc.output('blob');
   }
 
   // ===========================================
@@ -800,7 +778,7 @@
 
     updateCharCount(type);
     checkAlignment();
-    updatePreview();
+    schedulePreviewUpdate();
     textarea.focus();
   }
 
@@ -912,7 +890,7 @@
     elements.conMark.value = suggestedMarks.con;
 
     checkAlignment();
-    updatePreview();
+    schedulePreviewUpdate();
     showToast(`Applied ${Templates.getTemplate(templateId).name} template`);
   }
 
@@ -1072,7 +1050,7 @@
     updateCharCount('conduct');
     updateQuickPhrases();
     checkAlignment();
-    updatePreview();
+    schedulePreviewUpdate();
 
     closeLoadDraftModal();
     showToast('Draft loaded successfully!');
@@ -1109,7 +1087,7 @@
       updateCharCount('conduct');
       updateQuickPhrases();
       elements.alignmentWarning.classList.add('hidden');
-      updatePreview();
+      schedulePreviewUpdate();
 
       showToast('Form reset');
     }
@@ -1167,7 +1145,7 @@
     updateCharCount('conduct');
     updateQuickPhrases();
     checkAlignment();
-    updatePreview();
+    schedulePreviewUpdate();
 
     showToast('Example loaded! Edit fields as needed.');
   }

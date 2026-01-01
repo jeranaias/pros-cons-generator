@@ -1393,3 +1393,164 @@ body {
   color: var(--text-secondary);
   margin: 0;
 }
+
+/* ===========================================
+   Live PDF Preview Pane
+   =========================================== */
+.live-preview-pane {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 50%;
+  height: 100vh;
+  background: #f5f5f5;
+  border-left: 1px solid #ddd;
+  display: none;
+  flex-direction: column;
+  z-index: 1000;
+}
+
+.live-preview-pane.show {
+  display: flex;
+}
+
+.live-preview-pane .preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #333;
+  color: white;
+  font-weight: 500;
+}
+
+.preview-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.preview-format-select {
+  background: #444;
+  color: white;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.preview-format-select:hover {
+  background: #555;
+}
+
+.preview-format-select option {
+  background: #333;
+}
+
+.preview-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  opacity: 0.7;
+  line-height: 1;
+  padding: 0 4px;
+}
+
+.preview-close:hover {
+  opacity: 1;
+}
+
+.preview-frame {
+  flex: 1;
+  border: none;
+  background: white;
+}
+
+.preview-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: #666;
+  z-index: 10;
+}
+
+.preview-loading.show {
+  display: flex;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #ddd;
+  border-top-color: #333;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* When preview is active, shrink the main container */
+.main-content.preview-active {
+  margin-right: 50%;
+  transition: margin-right 0.3s ease;
+}
+
+/* Responsive: Hide preview on small screens or make it fullscreen */
+@media (max-width: 1024px) {
+  .live-preview-pane {
+    width: 100%;
+  }
+
+  .main-content.preview-active {
+    margin-right: 0;
+    display: none;
+  }
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .live-preview-pane {
+  background: #1a1a1a;
+  border-left-color: #333;
+}
+
+[data-theme="dark"] .live-preview-pane .preview-header {
+  background: #111;
+}
+
+[data-theme="dark"] .preview-format-select {
+  background: #222;
+  border-color: #333;
+}
+
+[data-theme="dark"] .preview-format-select:hover {
+  background: #333;
+}
+
+[data-theme="dark"] .preview-loading {
+  color: #888;
+}
+
+[data-theme="dark"] .spinner {
+  border-color: #333;
+  border-top-color: #888;
+}
+
+/* Night/tactical theme */
+[data-theme="night"] .live-preview-pane {
+  background: #0a0a0a;
+  border-left-color: #1a1a1a;
+}
+
+[data-theme="night"] .live-preview-pane .preview-header {
+  background: #050505;
+}
