@@ -76,6 +76,7 @@
     conCharCount: document.getElementById('conCharCount'),
 
     // Buttons
+    loadExample: document.getElementById('loadExample'),
     openProPhraseBank: document.getElementById('openProPhraseBank'),
     openConPhraseBank: document.getElementById('openConPhraseBank'),
     clearPro: document.getElementById('clearPro'),
@@ -195,6 +196,11 @@
   function setupEventListeners() {
     // Theme toggle
     elements.themeToggle.addEventListener('click', () => ThemeManager.toggle());
+
+    // Load example button
+    if (elements.loadExample) {
+      elements.loadExample.addEventListener('click', loadExample);
+    }
 
     // Marine info changes
     [elements.marineName, elements.marineRank, elements.marineUnit, elements.markingPeriod].forEach(el => {
@@ -334,7 +340,15 @@
     if (!hasContent) {
       elements.previewDocument.innerHTML = `
         <div class="preview-placeholder">
-          <p>Start entering information to see live preview</p>
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          <p>Start entering information<br>to see live preview</p>
+          <span class="preview-hint">or click "Load Example" to see a sample</span>
         </div>
       `;
       return;
@@ -1124,6 +1138,38 @@
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+  }
+
+  // ===========================================
+  // Load Example Data
+  // ===========================================
+  function loadExample() {
+    // Sample Marine info
+    if (elements.marineName) elements.marineName.value = 'SMITH, JOHN A';
+    if (elements.marineRank) elements.marineRank.value = 'LCpl';
+    if (elements.marineUnit) elements.marineUnit.value = '1st Bn, 5th Marines';
+    if (elements.markingPeriod) elements.markingPeriod.value = 'OCT 2024 - MAR 2025';
+
+    // Sample proficiency statement (4.4 level - above average)
+    elements.proficiencyStatement.value = 'LCpl Smith consistently demonstrates exceptional technical proficiency in all aspects of his MOS. He has trained 3 junior Marines on weapons maintenance procedures and led his fire team during MOUT training with outstanding results. Completed all assigned PME ahead of schedule and actively pursues self-improvement. Recommended for promotion to Corporal.';
+
+    // Sample conduct statement (4.4 level)
+    elements.conductStatement.value = 'LCpl Smith exemplifies the highest standards of military bearing and conduct. He maintains impeccable personal appearance and is always squared away for inspection. Demonstrates maturity beyond his rank and serves as a positive role model for junior Marines. Zero adverse conduct issues during this marking period. Actively participates in unit volunteer events and embodies our core values.';
+
+    // Set marks
+    elements.proMark.value = '4.4';
+    elements.conMark.value = '4.4';
+    elements.performanceLevel.value = '4.4';
+    elements.mosType.value = 'general';
+
+    // Update UI
+    updateCharCount('proficiency');
+    updateCharCount('conduct');
+    updateQuickPhrases();
+    checkAlignment();
+    updatePreview();
+
+    showToast('Example loaded! Edit fields as needed.');
   }
 
   // ===========================================

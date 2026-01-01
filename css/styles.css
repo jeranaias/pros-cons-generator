@@ -909,6 +909,41 @@ body {
 }
 
 /* ===========================================
+   Quick Start Bar
+   =========================================== */
+.quick-start-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  border-radius: var(--radius-lg);
+  color: white;
+}
+
+.quick-start-bar .btn {
+  background: white;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.quick-start-bar .btn:hover {
+  background: var(--gray-100);
+}
+
+.quick-start-hint {
+  font-size: var(--text-sm);
+  opacity: 0.9;
+}
+
+@media (max-width: 640px) {
+  .quick-start-bar {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+/* ===========================================
    Split Layout
    =========================================== */
 .split-layout {
@@ -923,24 +958,25 @@ body {
 }
 
 .preview-panel {
-  flex: 0 0 400px;
+  flex: 0 0 420px;
   position: sticky;
   top: var(--space-4);
   max-height: calc(100vh - var(--space-8));
   display: flex;
   flex-direction: column;
-  background: var(--surface);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-lg);
+  background: var(--gray-800);
+  border-radius: var(--radius-xl);
   overflow: hidden;
-  box-shadow: var(--shadow-md);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.2),
+    0 10px 10px -5px rgba(0, 0, 0, 0.1);
 }
 
 .preview-panel.hidden {
   display: none;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1100px) {
   .split-layout {
     flex-direction: column;
   }
@@ -950,28 +986,35 @@ body {
     width: 100%;
     position: relative;
     top: 0;
-    max-height: 500px;
+    max-height: 600px;
     order: -1;
     margin-bottom: var(--space-4);
   }
 }
 
 /* ===========================================
-   Preview Panel
+   Preview Panel - Professional Design
    =========================================== */
 .preview-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: var(--space-3) var(--space-4);
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-light);
+  background: var(--gray-900);
+  border-bottom: 1px solid var(--gray-700);
+}
+
+.preview-header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--gray-300);
 }
 
 .preview-header h3 {
   font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  color: var(--text-primary);
+  font-weight: var(--font-medium);
+  color: var(--gray-300);
   margin: 0;
 }
 
@@ -980,172 +1023,332 @@ body {
   gap: var(--space-2);
 }
 
-.preview-content {
+.preview-format-btn {
+  color: var(--gray-400);
+  font-size: var(--text-xs);
+  padding: var(--space-1) var(--space-2);
+}
+
+.preview-format-btn:hover {
+  color: white;
+  background: var(--gray-700);
+}
+
+/* Preview Viewport - The container with grid background */
+.preview-viewport {
   flex: 1;
   overflow-y: auto;
-  padding: var(--space-4);
-  background: var(--gray-100);
-}
-
-[data-theme="dark"] .preview-content,
-[data-theme="night"] .preview-content {
-  background: var(--bg-tertiary);
-}
-
-.preview-document {
-  background: white;
-  border: 1px solid var(--border-medium);
-  border-radius: var(--radius-sm);
+  overflow-x: hidden;
+  background:
+    linear-gradient(45deg, #3a3a3a 25%, transparent 25%),
+    linear-gradient(-45deg, #3a3a3a 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #3a3a3a 75%),
+    linear-gradient(-45deg, transparent 75%, #3a3a3a 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+  background-color: #2d2d2d;
   padding: var(--space-6);
-  min-height: 400px;
-  font-family: 'Times New Roman', Times, serif;
-  font-size: 11pt;
-  line-height: 1.4;
-  color: #000;
-  box-shadow: var(--shadow-sm);
 }
 
+/* Paper Container - Centers the paper */
+.preview-paper-container {
+  display: flex;
+  justify-content: center;
+}
+
+/* The Paper - Realistic document look */
+.preview-paper {
+  width: 100%;
+  max-width: 380px;
+  min-height: 500px;
+  background: #fff;
+  border-radius: 2px;
+  padding: 32px 28px;
+  font-family: 'Times New Roman', Times, Georgia, serif;
+  font-size: 10pt;
+  line-height: 1.5;
+  color: #000;
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.1),
+    0 8px 16px rgba(0,0,0,0.1),
+    0 16px 32px rgba(0,0,0,0.15),
+    0 32px 64px rgba(0,0,0,0.1);
+  position: relative;
+}
+
+/* Paper edge effect */
+.preview-paper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg,
+    #f0f0f0 0%,
+    #fff 10%,
+    #fff 90%,
+    #f0f0f0 100%
+  );
+}
+
+/* Placeholder state */
 .preview-placeholder {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 300px;
-  color: var(--text-tertiary);
+  min-height: 400px;
+  color: #999;
   font-family: var(--font-sans);
+  text-align: center;
+  gap: var(--space-3);
+}
+
+.preview-placeholder svg {
+  opacity: 0.4;
+  color: #bbb;
+}
+
+.preview-placeholder p {
   font-size: var(--text-sm);
-  text-align: center;
+  margin: 0;
+  line-height: 1.6;
 }
 
-/* Preview Document Styles */
-.preview-document .doc-header {
-  text-align: center;
-  margin-bottom: var(--space-6);
-  padding-bottom: var(--space-4);
-  border-bottom: 2px solid #000;
+.preview-hint {
+  font-size: var(--text-xs);
+  color: #aaa;
 }
 
-.preview-document .doc-title {
-  font-size: 14pt;
+/* ===========================================
+   Document Content Styles
+   =========================================== */
+
+/* Document Header */
+.preview-paper .doc-header {
+  text-align: center;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #8B0000;
+}
+
+.preview-paper .doc-title {
+  font-size: 13pt;
   font-weight: bold;
   text-transform: uppercase;
-  margin-bottom: var(--space-2);
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+  color: #000;
 }
 
-.preview-document .doc-subtitle {
+.preview-paper .doc-subtitle {
+  font-size: 9pt;
+  color: #444;
+  font-style: italic;
+}
+
+/* Marine Info Box */
+.preview-paper .marine-info {
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  background: #fafafa;
+  border: 1px solid #e0e0e0;
+  border-left: 3px solid #8B0000;
+  font-size: 9pt;
+}
+
+.preview-paper .marine-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 16px;
+}
+
+.preview-paper .marine-info-row {
+  display: flex;
+  gap: 8px;
+}
+
+.preview-paper .marine-info-label {
+  font-weight: bold;
+  color: #333;
+  min-width: 50px;
+}
+
+.preview-paper .marine-info-value {
+  color: #000;
+}
+
+/* Statement Sections */
+.preview-paper .section {
+  margin-bottom: 16px;
+}
+
+.preview-paper .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #333;
+}
+
+.preview-paper .section-title {
+  font-size: 10pt;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #000;
+  margin: 0;
+}
+
+.preview-paper .mark-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 22px;
+  padding: 0 8px;
+  background: #8B0000;
+  color: white;
+  font-weight: bold;
+  font-size: 10pt;
+  border-radius: 3px;
+  font-family: var(--font-sans);
+}
+
+.preview-paper .section-content {
+  font-size: 10pt;
+  line-height: 1.6;
+  text-align: justify;
+  color: #111;
+}
+
+.preview-paper .section-content.empty {
+  color: #999;
+  font-style: italic;
+}
+
+/* Signature Section */
+.preview-paper .signature-section {
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 1px solid #ccc;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.preview-paper .signature-block {
+  font-size: 8pt;
+}
+
+.preview-paper .signature-line {
+  width: 100%;
+  height: 1px;
+  background: #000;
+  margin-bottom: 4px;
+  margin-top: 28px;
+}
+
+.preview-paper .signature-label {
+  color: #333;
+}
+
+.preview-paper .date-field {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.preview-paper .date-field .date-line {
+  flex: 1;
+  height: 1px;
+  background: #000;
+}
+
+/* ===========================================
+   Card Format Preview
+   =========================================== */
+.preview-paper.card-format {
+  padding: 24px 20px;
+  min-height: auto;
+}
+
+.preview-paper.card-format .card-header {
+  text-align: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #8B0000;
+}
+
+.preview-paper.card-format .card-title {
+  font-size: 11pt;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.preview-paper.card-format .card-marine {
   font-size: 10pt;
   color: #333;
 }
 
-.preview-document .marine-info {
-  margin-bottom: var(--space-4);
-  padding: var(--space-3);
-  background: #f5f5f5;
-  border: 1px solid #ddd;
+.preview-paper.card-format .statement-block {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  background: #fafafa;
+  border: 1px solid #e5e5e5;
+  border-left: 4px solid #8B0000;
 }
 
-.preview-document .marine-info-row {
-  display: flex;
-  gap: var(--space-4);
-  margin-bottom: var(--space-1);
-}
-
-.preview-document .marine-info-label {
+.preview-paper.card-format .statement-label {
   font-weight: bold;
-  min-width: 80px;
-}
-
-.preview-document .section {
-  margin-bottom: var(--space-4);
-}
-
-.preview-document .section-title {
-  font-size: 11pt;
-  font-weight: bold;
+  font-size: 8pt;
   text-transform: uppercase;
-  margin-bottom: var(--space-2);
-  padding-bottom: var(--space-1);
-  border-bottom: 1px solid #000;
+  color: #666;
+  margin-bottom: 4px;
+  letter-spacing: 0.5px;
 }
 
-.preview-document .section-content {
-  padding-left: var(--space-2);
-}
-
-.preview-document .mark-display {
-  display: inline-block;
-  font-weight: bold;
-  font-size: 12pt;
-  padding: 2px 8px;
-  border: 1px solid #000;
-  margin-left: var(--space-2);
-}
-
-.preview-document .signature-section {
-  margin-top: var(--space-8);
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-6);
-}
-
-.preview-document .signature-block {
-  padding-top: var(--space-4);
-}
-
-.preview-document .signature-line {
-  border-top: 1px solid #000;
-  padding-top: var(--space-1);
+.preview-paper.card-format .statement-text {
   font-size: 9pt;
+  line-height: 1.5;
+  color: #111;
 }
 
-.preview-document .date-line {
-  margin-top: var(--space-2);
+.preview-paper.card-format .statement-text.empty {
+  color: #999;
+  font-style: italic;
 }
 
-/* Statement Card Preview (Simple Format) */
-.preview-document.card-format {
-  padding: var(--space-4);
-  min-height: auto;
-}
-
-.preview-document.card-format .statement-block {
-  margin-bottom: var(--space-4);
-  padding: var(--space-3);
-  border: 1px solid #ddd;
-  border-left: 4px solid var(--primary);
-}
-
-.preview-document.card-format .statement-label {
-  font-weight: bold;
-  font-size: 10pt;
-  text-transform: uppercase;
-  margin-bottom: var(--space-1);
-}
-
-.preview-document.card-format .statement-text {
-  font-size: 10pt;
-}
-
-.preview-document.card-format .marks-row {
+.preview-paper.card-format .marks-section {
   display: flex;
   justify-content: center;
-  gap: var(--space-6);
-  margin-top: var(--space-4);
-  padding-top: var(--space-4);
+  gap: 32px;
+  margin-top: 16px;
+  padding-top: 16px;
   border-top: 1px solid #ddd;
 }
 
-.preview-document.card-format .mark-item {
+.preview-paper.card-format .mark-item {
   text-align: center;
 }
 
-.preview-document.card-format .mark-label {
-  font-size: 9pt;
+.preview-paper.card-format .mark-label {
+  font-size: 8pt;
   color: #666;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
 }
 
-.preview-document.card-format .mark-value {
-  font-size: 18pt;
+.preview-paper.card-format .mark-value {
+  font-size: 24pt;
   font-weight: bold;
+  color: #8B0000;
+  font-family: var(--font-sans);
 }
 
 /* ===========================================

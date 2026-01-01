@@ -60,6 +60,20 @@
     <div class="split-layout">
       <!-- Left Panel - Editor -->
       <div class="editor-panel">
+        <!-- Quick Start -->
+        <div class="quick-start-bar mb-4">
+          <button class="btn btn--primary" id="loadExample">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+            Load Example
+          </button>
+          <span class="quick-start-hint">See a complete example to understand how this tool works</span>
+        </div>
+
         <!-- Marine Info Section -->
         <div class="card mb-4">
           <div class="card__header">
@@ -262,24 +276,39 @@
       <!-- Right Panel - Live Preview -->
       <div class="preview-panel">
         <div class="preview-header no-print">
-          <h3>Live Preview</h3>
+          <div class="preview-header-left">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <h3>Live Preview</h3>
+          </div>
           <div class="preview-controls">
-            <button class="btn btn--sm btn--outline" id="togglePreviewFormat">
-              <span id="previewFormatLabel">Worksheet</span>
-            </button>
-            <button class="btn btn--sm btn--ghost" id="togglePreview" title="Toggle Preview">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
+            <button class="btn btn--sm btn--ghost preview-format-btn" id="togglePreviewFormat" title="Switch format">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="17 1 21 5 17 9"></polyline>
+                <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                <polyline points="7 23 3 19 7 15"></polyline>
+                <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
               </svg>
+              <span id="previewFormatLabel">Worksheet</span>
             </button>
           </div>
         </div>
-        <div class="preview-content" id="previewContent">
-          <!-- Live preview will be rendered here -->
-          <div class="preview-document" id="previewDocument">
-            <div class="preview-placeholder">
-              <p>Start entering information to see live preview</p>
+        <div class="preview-viewport" id="previewContent">
+          <div class="preview-paper-container">
+            <div class="preview-paper" id="previewDocument">
+              <div class="preview-placeholder">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                <p>Start entering information<br>to see live preview</p>
+                <span class="preview-hint">or click "Load Example" to see a sample</span>
+              </div>
             </div>
           </div>
         </div>
