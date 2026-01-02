@@ -43,13 +43,14 @@ window.installPWA = installPWA;
   // ===========================================
   const ThemeManager = {
     STORAGE_KEY: 'usmc-tools-theme',
-    themes: ['light', 'dark', 'night'],
+    themes: ['dark', 'light', 'night'],
 
     init() {
       const saved = localStorage.getItem(this.STORAGE_KEY);
-      if (saved) {
+      if (saved && this.themes.includes(saved)) {
         this.setTheme(saved);
-      } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      } else {
+        // Default to dark mode
         this.setTheme('dark');
       }
       this.updateIcon();
@@ -63,12 +64,13 @@ window.installPWA = installPWA;
 
     toggle() {
       const current = this.getCurrent();
-      const nextIndex = (this.themes.indexOf(current) + 1) % this.themes.length;
+      const currentIndex = this.themes.indexOf(current);
+      const nextIndex = (currentIndex + 1) % this.themes.length;
       this.setTheme(this.themes[nextIndex]);
     },
 
     getCurrent() {
-      return document.documentElement.getAttribute('data-theme') || 'light';
+      return document.documentElement.getAttribute('data-theme') || 'dark';
     },
 
     updateIcon() {
@@ -77,8 +79,11 @@ window.installPWA = installPWA;
       const moonIcon = document.querySelector('.icon--moon');
       const tacticalIcon = document.querySelector('.icon--tactical');
 
-      if (sunIcon) sunIcon.classList.toggle('hidden', theme !== 'light');
+      // Dark mode: show moon (click to go to light)
+      // Light mode: show sun (click to go to night)
+      // Night mode: show tactical (click to go to dark)
       if (moonIcon) moonIcon.classList.toggle('hidden', theme !== 'dark');
+      if (sunIcon) sunIcon.classList.toggle('hidden', theme !== 'light');
       if (tacticalIcon) tacticalIcon.classList.toggle('hidden', theme !== 'night');
     }
   };

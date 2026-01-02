@@ -3,7 +3,7 @@
  * Enables offline functionality
  */
 
-const CACHE_NAME = 'pros-cons-generator-v4';
+const CACHE_NAME = 'pros-cons-generator-v7';
 
 const urlsToCache = [
   '/',

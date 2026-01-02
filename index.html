@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,8 +29,11 @@
           <h1 class="header__title">Pros/Cons Generator</h1>
           <p class="header__subtitle">Proficiency & Conduct Marking Statement Builder</p>
         </div>
-        <button id="themeToggle" class="btn btn--ghost theme-toggle" aria-label="Toggle theme">
-          <svg class="icon icon--sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <button id="themeToggle" class="btn btn--ghost theme-toggle" aria-label="Toggle theme (Dark/Light/Night)" title="Toggle theme">
+          <svg class="icon icon--moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <svg class="icon icon--sun hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="5"></circle>
             <line x1="12" y1="1" x2="12" y2="3"></line>
             <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -40,9 +43,6 @@
             <line x1="21" y1="12" x2="23" y2="12"></line>
             <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
             <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-          </svg>
-          <svg class="icon icon--moon hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
           </svg>
           <svg class="icon icon--tactical hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10"></circle>
@@ -54,38 +54,25 @@
     </div>
   </header>
 
+  <!-- Tagline -->
+  <div class="tagline no-print">
+    <div class="container">
+      <span class="tagline__text">Free tool for Marines · </span>
+      <a href="https://github.com/jeranaias/pros-cons-generator#readme" class="tagline__link">Documentation & Guide →</a>
+    </div>
+  </div>
+
   <!-- Main Content -->
   <main id="main" class="container main-content">
     <!-- Split Screen Layout -->
     <div class="split-layout">
       <!-- Left Panel - Editor -->
       <div class="editor-panel">
-        <!-- Quick Start -->
-        <div class="quick-start-bar mb-4">
-          <button class="btn btn--primary" id="loadExample">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
-              <line x1="16" y1="13" x2="8" y2="13"></line>
-              <line x1="16" y1="17" x2="8" y2="17"></line>
-            </svg>
-            Load Example
-          </button>
-          <button class="btn btn--secondary" id="previewToggle">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            </svg>
-            Live Preview
-          </button>
-          <span class="quick-start-hint">See a complete example to understand how this tool works</span>
-        </div>
-
         <!-- Marine Info Section -->
-        <div class="card mb-4">
+        <div class="card card--section mb-4">
           <div class="card__header">
-            <h2 class="card__title">Marine Information</h2>
-            <p class="card__subtitle">Optional - included in PDF export</p>
+            <h2 class="card__title card__title--section">Marine Information</h2>
+            <p class="card__subtitle">Optional identifying info - included in PDF export</p>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="form-group">
@@ -100,6 +87,13 @@
                 <option value="PFC">PFC</option>
                 <option value="LCpl">LCpl</option>
                 <option value="Cpl">Cpl</option>
+                <option value="Sgt">Sgt</option>
+                <option value="SSgt">SSgt</option>
+                <option value="GySgt">GySgt</option>
+                <option value="MSgt">MSgt</option>
+                <option value="1stSgt">1stSgt</option>
+                <option value="MGySgt">MGySgt</option>
+                <option value="SgtMaj">SgtMaj</option>
               </select>
             </div>
             <div class="form-group">
@@ -113,8 +107,12 @@
           </div>
         </div>
 
-        <!-- Configuration Row -->
-        <div class="card mb-4">
+        <!-- Evaluation Settings Section -->
+        <div class="card card--section mb-4">
+          <div class="card__header">
+            <h2 class="card__title card__title--section">Evaluation Settings</h2>
+            <p class="card__subtitle">Set performance level and MOS type for phrase suggestions</p>
+          </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="form-group">
               <label class="label" for="performanceLevel">Performance Level</label>
@@ -146,139 +144,160 @@
           </div>
         </div>
 
-    <!-- Proficiency Section -->
-    <div class="card mb-4">
-      <div class="card__header flex justify-between items-center">
-        <div>
-          <h2 class="card__title">Proficiency Statement</h2>
-          <p class="card__subtitle">Describe duty performance, technical skills, and leadership</p>
-        </div>
-        <button class="btn btn--outline btn--sm" id="openProPhraseBank">+ Add Phrase</button>
-      </div>
-      <div class="form-group">
-        <textarea
-          class="input textarea"
-          id="proficiencyStatement"
-          rows="5"
-          placeholder="Enter proficiency statement..."
-          maxlength="500"
-        ></textarea>
-        <div class="flex justify-between items-center mt-2">
-          <span class="char-counter" id="proCharCount">0/500</span>
-          <button class="btn btn--ghost btn--sm" id="clearPro">Clear</button>
-        </div>
-      </div>
-      <div class="quick-phrases" id="proQuickPhrases">
-        <span class="quick-phrases__label">Quick Phrases:</span>
-        <div class="quick-phrases__list" id="proQuickPhrasesList"></div>
-      </div>
-    </div>
-
-    <!-- Conduct Section -->
-    <div class="card mb-4">
-      <div class="card__header flex justify-between items-center">
-        <div>
-          <h2 class="card__title">Conduct Statement</h2>
-          <p class="card__subtitle">Describe bearing, behavior, influence, and compliance</p>
-        </div>
-        <button class="btn btn--outline btn--sm" id="openConPhraseBank">+ Add Phrase</button>
-      </div>
-      <div class="form-group">
-        <textarea
-          class="input textarea"
-          id="conductStatement"
-          rows="5"
-          placeholder="Enter conduct statement..."
-          maxlength="500"
-        ></textarea>
-        <div class="flex justify-between items-center mt-2">
-          <span class="char-counter" id="conCharCount">0/500</span>
-          <button class="btn btn--ghost btn--sm" id="clearCon">Clear</button>
-        </div>
-      </div>
-      <div class="quick-phrases" id="conQuickPhrases">
-        <span class="quick-phrases__label">Quick Phrases:</span>
-        <div class="quick-phrases__list" id="conQuickPhrasesList"></div>
-      </div>
-    </div>
-
-    <!-- Mark Recommendation Section -->
-    <div class="card mb-4">
-      <div class="card__header">
-        <h2 class="card__title">Recommended Marks</h2>
-      </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div class="form-group">
-          <label class="label" for="proMark">Proficiency Mark</label>
-          <select class="input select" id="proMark">
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="label" for="conMark">Conduct Mark</label>
-          <select class="input select" id="conMark">
-          </select>
-        </div>
-      </div>
-      <div id="alignmentWarning" class="alert alert--info mt-4 hidden">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="16" x2="12" y2="12"></line>
-          <line x1="12" y1="8" x2="12.01" y2="8"></line>
-        </svg>
-        <span id="alignmentMessage"></span>
-      </div>
-    </div>
-
-    <!-- Templates Section -->
-    <div class="card mb-4">
-      <div class="card__header">
-        <h2 class="card__title">Statement Templates</h2>
-        <p class="card__subtitle">Pre-formatted templates for common situations</p>
-      </div>
-      <div class="template-buttons flex flex-wrap gap-2">
-        <button class="btn btn--outline btn--sm" data-template="promotion">Promotion Statement</button>
-        <button class="btn btn--outline btn--sm" data-template="semiannual">Semi-Annual Counseling</button>
-        <button class="btn btn--outline btn--sm" data-template="adverse">Adverse Counseling</button>
-      </div>
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="card action-bar">
-      <div class="flex flex-wrap gap-3 justify-between">
-        <div class="flex flex-wrap gap-3">
-          <button class="btn btn--primary" id="copyToClipboard">
+        <!-- Action Button Group -->
+        <div class="action-button-group mb-4">
+          <button class="btn btn--preview" id="previewToggle">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
             </svg>
-            Copy to Clipboard
+            Live Preview
           </button>
-          <button class="btn btn--success" id="exportPDF">
+          <button class="btn btn--secondary-outline" id="loadExample">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
               <polyline points="14 2 14 8 20 8"></polyline>
-              <line x1="12" y1="18" x2="12" y2="12"></line>
-              <line x1="9" y1="15" x2="15" y2="15"></line>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
             </svg>
-            Export PDF
-          </button>
-          <button class="btn btn--secondary" id="saveDraft">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-              <polyline points="17 21 17 13 7 13 7 21"></polyline>
-              <polyline points="7 3 7 8 15 8"></polyline>
-            </svg>
-            Save Draft
+            Load Example
           </button>
         </div>
-        <div class="flex flex-wrap gap-3">
-          <button class="btn btn--outline" id="loadDraft">Load Draft</button>
-          <button class="btn btn--ghost" id="resetForm">Reset All</button>
-        </div>
-      </div>
-    </div>
 
-    </div><!-- End Editor Panel -->
+        <!-- Proficiency Section -->
+        <div class="card card--section mb-4">
+          <div class="card__header flex justify-between items-center">
+            <div>
+              <h2 class="card__title card__title--section">Proficiency Statement</h2>
+              <p class="card__subtitle">Describe duty performance, technical skills, and leadership</p>
+            </div>
+            <button class="btn btn--outline btn--sm" id="openProPhraseBank">+ Add Phrase</button>
+          </div>
+          <div class="form-group">
+            <textarea
+              class="input textarea"
+              id="proficiencyStatement"
+              rows="5"
+              placeholder="Enter proficiency statement..."
+              maxlength="500"
+            ></textarea>
+            <div class="flex justify-between items-center mt-2">
+              <span class="char-counter" id="proCharCount">0/500</span>
+              <button class="btn btn--ghost btn--sm" id="clearPro">Clear</button>
+            </div>
+          </div>
+          <div class="quick-phrases" id="proQuickPhrases">
+            <span class="quick-phrases__label">Quick Phrases:</span>
+            <div class="quick-phrases__list" id="proQuickPhrasesList"></div>
+          </div>
+        </div>
+
+        <!-- Conduct Section -->
+        <div class="card card--section mb-4">
+          <div class="card__header flex justify-between items-center">
+            <div>
+              <h2 class="card__title card__title--section">Conduct Statement</h2>
+              <p class="card__subtitle">Describe bearing, behavior, influence, and compliance</p>
+            </div>
+            <button class="btn btn--outline btn--sm" id="openConPhraseBank">+ Add Phrase</button>
+          </div>
+          <div class="form-group">
+            <textarea
+              class="input textarea"
+              id="conductStatement"
+              rows="5"
+              placeholder="Enter conduct statement..."
+              maxlength="500"
+            ></textarea>
+            <div class="flex justify-between items-center mt-2">
+              <span class="char-counter" id="conCharCount">0/500</span>
+              <button class="btn btn--ghost btn--sm" id="clearCon">Clear</button>
+            </div>
+          </div>
+          <div class="quick-phrases" id="conQuickPhrases">
+            <span class="quick-phrases__label">Quick Phrases:</span>
+            <div class="quick-phrases__list" id="conQuickPhrasesList"></div>
+          </div>
+        </div>
+
+        <!-- Mark Recommendation Section -->
+        <div class="card card--section mb-4">
+          <div class="card__header">
+            <h2 class="card__title card__title--section">Recommended Marks</h2>
+            <p class="card__subtitle">Select proficiency and conduct marks for the evaluation</p>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="form-group">
+              <label class="label" for="proMark">Proficiency Mark</label>
+              <select class="input select" id="proMark">
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="label" for="conMark">Conduct Mark</label>
+              <select class="input select" id="conMark">
+              </select>
+            </div>
+          </div>
+          <div id="alignmentWarning" class="alert alert--info mt-4 hidden">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <span id="alignmentMessage"></span>
+          </div>
+        </div>
+
+        <!-- Templates Section -->
+        <div class="card card--section mb-4">
+          <div class="card__header">
+            <h2 class="card__title card__title--section">Statement Templates</h2>
+            <p class="card__subtitle">Pre-formatted templates for common evaluation situations</p>
+          </div>
+          <div class="template-buttons flex flex-wrap gap-2">
+            <button class="btn btn--outline btn--sm" data-template="promotion">Promotion Statement</button>
+            <button class="btn btn--outline btn--sm" data-template="semiannual">Semi-Annual Counseling</button>
+            <button class="btn btn--outline btn--sm" data-template="adverse">Adverse Counseling</button>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="card action-bar">
+          <div class="flex flex-wrap gap-3 justify-between">
+            <div class="flex flex-wrap gap-3">
+              <button class="btn btn--primary" id="copyToClipboard">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                Copy to Clipboard
+              </button>
+              <button class="btn btn--success" id="exportPDF">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="12" y1="18" x2="12" y2="12"></line>
+                  <line x1="9" y1="15" x2="15" y2="15"></line>
+                </svg>
+                Export PDF
+              </button>
+              <button class="btn btn--secondary" id="saveDraft">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                  <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                  <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+                Save Draft
+              </button>
+            </div>
+            <div class="flex flex-wrap gap-3">
+              <button class="btn btn--outline" id="loadDraft">Load Draft</button>
+              <button class="btn btn--ghost" id="resetForm">Reset All</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- End Editor Panel -->
     </div><!-- End Split Layout -->
 
     <!-- Live PDF Preview Pane -->
@@ -309,8 +328,8 @@
     </div>
 
     <!-- Install App / Offline Guide -->
-    <details class="card mb-4 no-print" id="install-guide">
-      <summary class="card__title" style="cursor: pointer; padding: var(--space-4);">
+    <details class="card card--section mb-4 no-print" id="install-guide">
+      <summary class="card__title card__title--section" style="cursor: pointer; padding: var(--space-4);">
         Install for Offline Use
       </summary>
       <div class="p-4">
