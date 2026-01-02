@@ -17,7 +17,7 @@
   --text-muted: #AAAAAA;
   --accent-red: #DC4444;
   --accent-yellow: #EAB308;
-  --btn-primary: #28A745;
+  --btn-primary: #C41E3A;
   --header-gradient-start: #5C1A1A;
   --header-gradient-end: #6C2A2A;
   --tab-active-bg: #DC4444;
@@ -304,7 +304,7 @@ body {
    Header
    =========================================== */
 .header {
-  background: linear-gradient(135deg, #4A1515 0%, #3A0F0F 100%);
+  background: linear-gradient(135deg, #8B1538, #3d0714);
   color: #FFFFFF;
   padding: var(--space-6) 0;
   box-shadow: var(--shadow-md);
@@ -313,7 +313,7 @@ body {
 /* Scarlet accent line below header */
 .header-accent {
   height: 4px;
-  background: #8B0000;
+  background: #C41E3A;
 }
 
 .header__content {
@@ -376,8 +376,8 @@ body {
    Cards
    =========================================== */
 .card {
-  background: #2a2a2a;
-  border: 1px solid #333;
+  background: var(--bg-card);
+  border: 1px solid var(--border-input);
   border-radius: var(--radius-lg);
   padding: var(--space-6);
 }
@@ -391,17 +391,7 @@ body {
   /* Uses base card styling - full subtle border */
 }
 
-/* Light mode card adjustments */
-[data-theme="light"] .card {
-  background: #FFFFFF;
-  border-color: #DEE2E6;
-}
-
-/* Night mode card adjustments */
-[data-theme="night"] .card {
-  background: #1a1a1a;
-  border-color: #3a0000;
-}
+/* Card theme adjustments now handled by CSS variables */
 
 .card__header {
   margin-bottom: var(--space-4);
