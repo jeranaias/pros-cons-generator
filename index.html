@@ -54,6 +54,9 @@
     </div>
   </header>
 
+  <!-- Scarlet Accent Line -->
+  <div class="header-accent"></div>
+
   <!-- Tagline -->
   <div class="tagline no-print">
     <div class="container">
@@ -171,7 +174,7 @@
               <h2 class="card__title card__title--section">Proficiency Statement</h2>
               <p class="card__subtitle">Describe duty performance, technical skills, and leadership</p>
             </div>
-            <button class="btn btn--outline btn--sm" id="openProPhraseBank">+ Add Phrase</button>
+            <button class="btn btn--dashed btn--sm" id="openProPhraseBank">+ Add Phrase</button>
           </div>
           <div class="form-group">
             <textarea
@@ -199,7 +202,7 @@
               <h2 class="card__title card__title--section">Conduct Statement</h2>
               <p class="card__subtitle">Describe bearing, behavior, influence, and compliance</p>
             </div>
-            <button class="btn btn--outline btn--sm" id="openConPhraseBank">+ Add Phrase</button>
+            <button class="btn btn--dashed btn--sm" id="openConPhraseBank">+ Add Phrase</button>
           </div>
           <div class="form-group">
             <textarea
@@ -265,14 +268,14 @@
         <div class="card action-bar">
           <div class="flex flex-wrap gap-3 justify-between">
             <div class="flex flex-wrap gap-3">
-              <button class="btn btn--primary" id="copyToClipboard">
+              <button class="btn btn--outline-primary" id="copyToClipboard">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                 </svg>
                 Copy to Clipboard
               </button>
-              <button class="btn btn--success" id="exportPDF">
+              <button class="btn btn--primary" id="exportPDF">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                   <polyline points="14 2 14 8 20 8"></polyline>
@@ -476,10 +479,7 @@
   <footer class="footer no-print">
     <div class="container">
       <p class="text-sm text-secondary text-center">
-        Free and open source. <a href="https://github.com/jeranaias/pros-cons-generator">View on GitHub</a>
-      </p>
-      <p class="text-sm text-secondary text-center mt-4">
-        Part of the <a href="https://jeranaias.github.io/usmc-tools/">USMC Tools</a> suite.
+        Pros/Cons Generator v1.0 · Part of <a href="https://jeranaias.github.io/usmc-tools/">USMC Tools</a> · <a href="https://github.com/jeranaias/pros-cons-generator">GitHub</a>
       </p>
     </div>
   </footer>

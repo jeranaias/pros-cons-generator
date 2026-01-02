@@ -304,10 +304,16 @@ body {
    Header
    =========================================== */
 .header {
-  background: linear-gradient(135deg, var(--header-gradient-start) 0%, var(--header-gradient-end) 100%);
+  background: linear-gradient(135deg, #4A1515 0%, #3A0F0F 100%);
   color: #FFFFFF;
   padding: var(--space-6) 0;
   box-shadow: var(--shadow-md);
+}
+
+/* Scarlet accent line below header */
+.header-accent {
+  height: 4px;
+  background: #8B0000;
 }
 
 .header__content {
@@ -320,6 +326,8 @@ body {
   font-size: var(--text-2xl);
   font-weight: var(--font-bold);
   margin-bottom: var(--space-1);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .header__subtitle {
@@ -333,13 +341,27 @@ body {
   }
 }
 
+/* Theme toggle button - circle with icon */
 .theme-toggle {
-  color: var(--white);
-  padding: var(--space-2);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #FFFFFF;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .theme-toggle:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.theme-toggle .icon {
+  width: 20px;
+  height: 20px;
 }
 
 /* ===========================================
@@ -354,21 +376,31 @@ body {
    Cards
    =========================================== */
 .card {
-  background: var(--surface);
-  border: 1px solid var(--border-light);
+  background: #2a2a2a;
+  border: 1px solid #333;
   border-radius: var(--radius-lg);
   padding: var(--space-6);
-  box-shadow: var(--shadow-sm);
 }
 
 .card--elevated {
   box-shadow: var(--shadow-md);
 }
 
-/* Section card with gold accent border */
+/* Section card - full border, no left accent */
 .card--section {
-  border-left: 3px solid var(--accent-yellow);
-  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  /* Uses base card styling - full subtle border */
+}
+
+/* Light mode card adjustments */
+[data-theme="light"] .card {
+  background: #FFFFFF;
+  border-color: #DEE2E6;
+}
+
+/* Night mode card adjustments */
+[data-theme="night"] .card {
+  background: #1a1a1a;
+  border-color: #3a0000;
 }
 
 .card__header {
@@ -383,10 +415,10 @@ body {
   color: var(--text-primary);
 }
 
-/* Section title style - ALL CAPS with gold color */
+/* Section title style - ALL CAPS */
 .card__title--section {
   text-transform: uppercase;
-  color: var(--accent-yellow);
+  color: var(--text-primary);
   letter-spacing: 0.05em;
   font-size: var(--text-base);
   font-weight: var(--font-semibold);
@@ -476,6 +508,31 @@ body {
 
 .btn--outline:hover:not(:disabled) {
   background: var(--bg-secondary);
+}
+
+/* Dashed Outline Button (for "Add Phrase" style) */
+.btn--dashed {
+  background: transparent;
+  border: 1px dashed var(--border-medium);
+  color: var(--text-secondary);
+}
+
+.btn--dashed:hover:not(:disabled) {
+  border-color: var(--accent-red);
+  color: var(--text-primary);
+  background: transparent;
+}
+
+/* Outline Primary Button (outlined with red/primary text) */
+.btn--outline-primary {
+  background: transparent;
+  border: 1px solid var(--border-medium);
+  color: var(--accent-red);
+}
+
+.btn--outline-primary:hover:not(:disabled) {
+  background: var(--bg-tertiary);
+  border-color: var(--accent-red);
 }
 
 /* Ghost Button */
