@@ -3,21 +3,21 @@
  * Enables offline functionality
  */
 
-const CACHE_NAME = 'pros-cons-generator-v8';
+const CACHE_NAME = 'pros-cons-generator-v9';
 
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/css/styles.css',
-  '/js/app.js',
-  '/js/phrases.js',
-  '/js/templates.js',
-  '/js/alignment.js',
-  '/js/storage.js',
-  '/assets/icon-192.png',
-  '/assets/icon-512.png',
-  '/manifest.json',
-  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
+  './',
+  './index.html',
+  './css/styles.css',
+  './js/app.js',
+  './js/phrases.js',
+  './js/templates.js',
+  './js/alignment.js',
+  './js/storage.js',
+  './assets/icon-192.png',
+  './assets/icon-512.png',
+  './manifest.json',
+  './lib/jspdf.umd.min.js'
 ];
 
 // Install event - cache static assets
