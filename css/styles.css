@@ -927,6 +927,24 @@ body {
   z-index: 10;
 }
 
+/* Mobile: Stack action buttons vertically */
+@media (max-width: 600px) {
+  .action-bar .flex.justify-between {
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .action-bar .flex.justify-between > .flex {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .action-bar .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 /* ===========================================
    Footer
    =========================================== */
